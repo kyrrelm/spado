@@ -1,0 +1,13 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "elm-app start"
+  },
+  "dependencies": {
+    "aws4": "^1.8.0",
+    "create-elm-app": "^2.0.6"
+  }
+}

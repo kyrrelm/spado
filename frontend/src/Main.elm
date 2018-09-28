@@ -1,8 +1,14 @@
-module Main exposing (..)
+module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
-import Html exposing (Html, text, div, h1, img)
+import Html exposing (Html, button, div, h1, img, text)
 import Html.Attributes exposing (src)
+import Html.Events exposing (onClick)
+import Http
+import Json.Decode as Decode
+import Json.Encode as Encode
+import RemoteData exposing (WebData)
+
 
 
 ---- MODEL ----
@@ -14,7 +20,32 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}, Cmd.none )
+    ( Model, Cmd.none )
+
+
+
+---- CMD ----
+
+
+hentNoe : Cmd Msg
+hentNoe =
+    Http.get "https://developer-api-sandbox.dnb.no/api/token?customerId={'type':'SSN', 'value':'29105573083'}" (Decode.field "title" Decode.string)
+        |> RemoteData.sendRequest
+        |> Cmd.map ReceiveData
+
+
+postNoe : Cmd Msg
+postNoe =
+    let
+        body =
+            Http.jsonBody <|
+                Encode.object
+                    [ ( "test", Encode.string "hei" )
+                    ]
+    in
+    Http.post "https://jsonplaceholder.typicode.com/todos/1" body (Decode.field "title" Decode.string)
+        |> RemoteData.sendRequest
+        |> Cmd.map ReceiveData
 
 
 
@@ -23,11 +54,21 @@ init =
 
 type Msg
     = NoOp
+    | OnClickButton
+    | ReceiveData (WebData String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
+        OnClickButton ->
+            ( model, hentNoe )
+
+        ReceiveData data ->
+            ( model, Cmd.none )
 
 
 
@@ -39,6 +80,7 @@ view model =
     div []
         [ img [ src "/logo.svg" ] []
         , h1 [] [ text "Your Elm App is working!" ]
+        , button [ onClick OnClickButton ] [ text "Click me" ]
         ]
 
 
